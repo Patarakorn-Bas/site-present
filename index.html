@@ -173,6 +173,36 @@ textarea.i{resize:vertical;line-height:1.25}
 .pv.idle .pv-bar{opacity:0}
 .pv-bar button{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:8px;min-width:44px;height:40px;cursor:pointer;font-size:20px;padding:0 12px}
 .pv-bar span{min-width:76px;text-align:center;font-size:20px}
+/* v2 slides */
+.bg-na{background:#1F4A86}
+.sum{list-style:none;margin:6px 0 0;padding:0}
+.sum li{display:grid;grid-template-columns:44px 1fr;gap:22px;align-items:center;padding:16px 0;border-bottom:2px solid #EDF0F3}
+.sum .lamp{width:30px;height:30px;border-radius:50%;margin-left:6px}
+.sum p{margin:0;font-size:40px;line-height:1.2}
+.cb{list-style:none;margin:0;padding:0}.cb li{font-size:38px;line-height:1.3;padding:6px 0}.cb li.bl{padding-left:40px;position:relative}
+.cb li.bl::before{content:'';position:absolute;left:8px;top:24px;width:14px;height:14px;border-radius:50%;background:#1F4A86}
+.cst{display:grid;grid-template-columns:1.15fr 1fr;gap:50px;flex:1;min-height:0}.cst figure{margin:0;min-height:0;display:flex}.cst img{width:100%;height:100%;object-fit:contain;border-radius:6px}
+.endsl{align-items:center;justify-content:center;background:#14233A;color:#fff}.endsl p{font-size:80px}
+/* presenter extras */
+.pv-stage .ink{position:absolute;left:0;top:0;width:1600px;height:900px;pointer-events:none;touch-action:none}
+.pv-slide{width:1600px;height:900px}
+.pv-black{position:absolute;inset:0;background:#000;z-index:3}
+.pv-notes{position:absolute;left:16px;right:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));max-height:34vh;overflow:auto;background:rgba(10,17,25,.94);color:#F2F4F7;border-radius:12px;padding:14px 18px;font-size:24px;line-height:1.4;white-space:pre-wrap;z-index:4}
+.pv-bar{z-index:5}.pv-bar button.on{background:#F2B705;color:#14233A}
+.pv.con{background:#0B1119;color:#E4E8EE}
+.cs{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:minmax(0,1fr) auto;gap:14px;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px))}
+.cs-main{min-height:0;display:flex}.cs-box{position:relative;flex:1;overflow:hidden;border-radius:8px;background:#000;min-height:0}
+.cs-box.sm{flex:0 0 auto;height:200px}
+.cs-side{display:flex;flex-direction:column;gap:8px;min-height:0}
+.cs-time{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.cs-time b{font-size:44px;line-height:1;font-variant-numeric:tabular-nums}.cs-time span{flex:1;font-size:20px;opacity:.8}
+.cs-time button,.cs-side>.btn{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:2px 10px;cursor:pointer;font-size:18px}
+.cs-lab{font-size:18px;opacity:.7}
+.cs-notes{flex:1;min-height:0;overflow:auto;background:#141C27;border-radius:8px;padding:12px 14px;font-size:24px;line-height:1.4;white-space:pre-wrap}
+.cs .pv-bar{position:static;transform:none;grid-column:1/3;justify-self:center}
+@media(max-width:900px){.cs{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto auto}.cs-box.sm{display:none}.cs-notes{max-height:24vh}.cs .pv-bar{grid-column:1}}
+/* prep extras */
+.nt{margin-top:6px}.nt summary{cursor:pointer;font-size:17px;color:var(--soft)}.nt textarea{font-size:17px;margin-top:4px}
+.cimg{max-height:70px;border-radius:6px;background:#fff}
 #printRoot{display:none}
 @media print{
   @page{size:1600px 900px;margin:0}
@@ -197,7 +227,7 @@ textarea.i{resize:vertical;line-height:1.25}
 <div id="printRoot"></div>
 <script>
 'use strict';
-var APP_VERSION = '1.0.0';
+var APP_VERSION = '2.0.0';
 
 /* ============ utilities ============ */
 function $(s, r) { return (r || document).querySelector(s); }
@@ -360,7 +390,7 @@ function parseXlsx(wb, fileName) {
 function newPres(pid) {
   var d = iso(today());
   return { projectId: pid, meeting: { title: 'รายงานความก้าวหน้าการก่อสร้าง', no: '', meetDate: d, date: d, presenter: '', position: 'ผู้ควบคุมงาน', org: '' },
-    mode: 'full', period: 14, slides: {}, issues: [], requests: [], inst: null, thr: { amber: 2, red: 10 }, pen: { rate: 0.1, min: 100 }, contract: {}, snaps: [], logo: '' };
+    mode: 'full', period: 14, slides: {}, issues: [], requests: [], inst: null, summaryText: '', custom: [], notes: {}, thr: { amber: 2, red: 10 }, pen: { rate: 0.1, min: 100 }, contract: {}, snaps: [], logo: '' };
 }
 var CF = [['name', 'ชื่อโครงการ'], ['employer', 'ผู้ว่าจ้าง'], ['contractor', 'ผู้รับจ้าง'], ['contract_no', 'เลขที่สัญญา'], ['bac', 'วงเงินสัญญา (บาท)', 'num'], ['start', 'วันเริ่มสัญญา', 'date'], ['duration', 'ระยะเวลาสัญญา (วัน)', 'num'], ['eot', 'ขยายเวลาที่อนุมัติ (วัน)', 'num']];
 function project(P, pr) {
@@ -398,6 +428,8 @@ function calc(P0, pr) {
   C.cls = bp <= num(pr.thr.amber) ? 'ok' : bp <= num(pr.thr.red) ? 'warn' : 'bad';
   C.verdict = actual >= 0.99995 ? 'งานแล้วเสร็จ 100%' : C.diff >= 0.00005 ? 'เร็วกว่าแผน' : bp < 0.005 ? 'ตามแผน' : C.cls === 'ok' ? 'ใกล้เคียงแผน' : C.cls === 'warn' ? 'ล่าช้ากว่าแผน' : 'ล่าช้ากว่าแผนมาก';
   if (dd < start) C.verdict = 'ยังไม่ถึงวันเริ่มสัญญา';
+  var prev = (pr.snaps || []).filter(function (x) { return D(x.date) && D(x.date) < dd; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; }).pop();
+  if (prev) { C.prev = prev; C.dAct = actual - num(prev.actual); C.dPlan = plan - (prev.plan != null && prev.plan !== '' ? num(prev.plan) : planAt(D(prev.date))); }
   // earned schedule forecast
   C.spi = null; C.fc = null; C.late = null;
   if (actual < 0.99995 && actual > 0 && dd >= start) {
@@ -447,11 +479,11 @@ function calc(P0, pr) {
 }
 
 /* ============ slides ============ */
-var SL = [['cover', 'หน้าปก'], ['status', 'สถานะโครงการ'], ['scurve', 'S-Curve แผนเทียบผลงานจริง'], ['groups', 'ความก้าวหน้าแยกตามหมวดงาน'], ['work', 'ผลงานช่วงที่ผ่านมาและแผนช่วงถัดไป'],
+var SL = [['cover', 'หน้าปก'], ['summary', 'สรุปสำหรับผู้บริหาร'], ['status', 'สถานะโครงการ'], ['scurve', 'S-Curve แผนเทียบผลงานจริง'], ['groups', 'ความก้าวหน้าแยกตามหมวดงาน'], ['work', 'ผลงานช่วงที่ผ่านมาและแผนช่วงถัดไป'],
   ['inst', 'งวดงานและการเบิกจ่าย'], ['photos', 'ภาพถ่ายหน้างาน'], ['issues', 'ปัญหาอุปสรรคและแนวทางแก้ไข'], ['forecast', 'คาดการณ์การแล้วเสร็จ'], ['requests', 'เรื่องเสนอเพื่อพิจารณา']];
-var SHORT = ['cover', 'status', 'scurve', 'issues', 'requests'];
-function slideOn(pr, k) { if (pr.slides && pr.slides[k] != null) return pr.slides[k]; return pr.mode === 'short' ? SHORT.indexOf(k) >= 0 : true; }
-function shell(title, sub, body, cls) { return '<section class="slide ' + (cls || '') + '"><i class="tk"></i><header class="sh"><h2>' + title + '</h2>' + (sub ? '<p>' + sub + '</p>' : '') + '</header><div class="sb">' + body + '</div><footer class="sf">@@F@@</footer></section>'; }
+var SHORT = ['cover', 'summary', 'status', 'scurve', 'issues', 'requests'];
+function slideOn(pr, k) { if (pr.slides && pr.slides[k] != null) return pr.slides[k]; if (k.indexOf('c_') === 0) return true; return pr.mode === 'short' ? SHORT.indexOf(k) >= 0 : true; }
+function shell(title, sub, body, cls) { return '<section class="slide ' + (cls || '') + '"><header class="sh"><h2>' + title + '</h2>' + (sub ? '<p>' + sub + '</p>' : '') + '</header><div class="sb">' + body + '</div><footer class="sf">@@F@@</footer></section>'; }
 function ticksSVG(h) {
   var s = '<svg class="ticks" viewBox="0 0 46 900" preserveAspectRatio="none" aria-hidden="true"><rect width="46" height="900" fill="#F2B705"/>';
   for (var i = 0; i <= 90; i++) { var y = i * 10, l = i % 10 === 0 ? 30 : i % 5 === 0 ? 20 : 11; s += '<line x1="46" x2="' + (46 - l) + '" y1="' + y + '" y2="' + y + '" stroke="#14233A" stroke-width="2"/>'; }
@@ -492,7 +524,7 @@ function tapeSVG(C) {
 function sStatus(C) {
   var tl = Math.max(0, Math.min(1, C.elapsed / Math.max(1, C.total)));
   var body = '<div class="st-top"><div class="st-v"><span class="lamp bg-' + C.cls + '"></span><div><b class="c-' + C.cls + '">' + C.verdict + '</b><span>' +
-    (Math.abs(C.diff) < 0.00005 ? 'ผลงานจริงเท่ากับแผน' : 'ผลงานจริง' + (C.diff < 0 ? 'ต่ำกว่า' : 'สูงกว่า') + 'แผน ' + P2(Math.abs(C.diff))) + '</span></div></div>' +
+    (Math.abs(C.diff) < 0.00005 ? 'ผลงานจริงเท่ากับแผน' : 'ผลงานจริง' + (C.diff < 0 ? 'ต่ำกว่า' : 'สูงกว่า') + 'แผน ' + P2(Math.abs(C.diff))) + (C.prev ? '<br>เพิ่มขึ้น ' + sgn(C.dAct) + ' จากรายงานครั้งก่อน (' + th(C.prev.date, true) + ')' : '') + '</span></div></div>' +
     '<div class="st-n"><div><span>ตามแผน</span><b>' + P2(C.plan) + '</b></div><div><span>ผลงานจริง</span><b>' + P2(C.actual) + '</b></div><div><span>ส่วนต่าง</span><b class="c-' + (C.diff < -0.00005 ? C.cls : 'ok') + '">' + sgn(C.diff) + '</b></div></div></div>' +
     tapeSVG(C) +
     '<div class="facts"><div><span>ระยะเวลาผ่านไป</span><b>' + int(C.elapsed) + ' / ' + int(C.total) + ' วัน</b><small>' + P2(tl) + ' ของระยะเวลาสัญญา</small></div>' +
@@ -630,16 +662,301 @@ function sRequests(C, pr) {
 function buildSlides(C, pr, photos, onlyOn) {
   var out = [];
   if (!C.ok) return [{ key: 'cover', html: sCover(C, pr) }];
-  SL.forEach(function (s) {
-    var k = s[0]; if (onlyOn && !slideOn(pr, k)) return;
-    var h = k === 'cover' ? sCover(C, pr) : k === 'status' ? sStatus(C) : k === 'scurve' ? sCurve(C, pr) : k === 'groups' ? sGroups(C) : k === 'work' ? sWork(C, pr) :
+  slideKeys(pr).forEach(function (k) {
+    if (onlyOn && !slideOn(pr, k)) return;
+    var cu = k.indexOf('c_') === 0 ? customOf(pr, k) : null; if (k.indexOf('c_') === 0 && !cu) return;
+    var h = cu ? sCustom(cu) : k === 'cover' ? sCover(C, pr) : k === 'summary' ? sSummary(C, pr) : k === 'status' ? sStatus(C) : k === 'scurve' ? sCurve(C, pr) : k === 'groups' ? sGroups(C) : k === 'work' ? sWork(C, pr) :
       k === 'inst' ? sInst(C) : k === 'photos' ? sPhotos(C, photos) : k === 'issues' ? sIssues(C, pr) : k === 'forecast' ? sForecast(C) : sRequests(C, pr);
-    (Array.isArray(h) ? h : [h]).forEach(function (x) { out.push({ key: k, html: x }); });
+    var nt = notesFor(k, C, pr); (Array.isArray(h) ? h : [h]).forEach(function (x) { out.push({ key: k, html: x, notes: nt }); });
   });
   var n = out.length, nm = C.P.name;
   out.forEach(function (o, i) { o.html = o.html.replace('@@F@@', '<span>' + esc(nm) + '</span><span>ข้อมูล ณ วันที่ ' + th(C.dd, true) + '</span><span>' + (i + 1) + ' / ' + n + '</span>'); });
   return out;
 }
+/* ===================== v2 PRO: summary, custom slides, notes ===================== */
+var INST_PER = 7, PH_PER = 4, ISS_PER = 3, REQ_PER = 4;
+function slideKeys(pr) { var k = SL.map(function (s) { return s[0]; }), i = k.indexOf('requests'); return k.slice(0, i).concat((pr.custom || []).map(function (c) { return 'c_' + c.id; }), k.slice(i)); }
+function customOf(pr, k) { return (pr.custom || []).filter(function (c) { return 'c_' + c.id === k; })[0]; }
+function labelOf(pr, k) { if (k.indexOf('c_') === 0) { var c = customOf(pr, k); return 'สไลด์เพิ่มเติม: ' + ((c && c.title) || '(ไม่มีชื่อ)'); } var s = SL.filter(function (x) { return x[0] === k; })[0]; return s ? s[1] : k; }
+function summaryLines(C, pr) {
+  if (pr.summaryText && pr.summaryText.trim()) return pr.summaryText.split('\n').map(function (t) { return t.trim(); }).filter(Boolean).map(function (t) { return { cls: 'na', text: t.replace(/^[-•]\s*/, '') }; });
+  var L = [];
+  L.push({ cls: C.cls, text: 'ผลงานจริง ' + P2(C.actual) + ' เทียบกับแผน ' + P2(C.plan) + ' ' + C.verdict + (Math.abs(C.diff) >= 0.00005 ? ' (ส่วนต่าง ' + sgn(C.diff) + ')' : '') });
+  if (C.prev) L.push({ cls: C.dAct >= C.dPlan - 0.00005 ? 'ok' : 'warn', text: 'ตั้งแต่รายงานครั้งก่อน (' + th(C.prev.date, true) + ') ผลงานเพิ่มขึ้น ' + P2(Math.max(0, C.dAct)) + ' ขณะที่แผนกำหนดไว้ ' + P2(Math.max(0, C.dPlan)) });
+  if (C.actual >= 0.99995) L.push({ cls: 'ok', text: 'งานแล้วเสร็จครบ 100%' });
+  else if (C.fc) L.push({ cls: C.late > 0 ? 'bad' : 'ok', text: 'หากรักษาอัตราปัจจุบัน คาดว่าแล้วเสร็จ ' + th(C.fc) + (C.late > 0 ? ' ช้ากว่าสัญญา ' + int(C.late) + ' วัน' : ' ทันตามสัญญา') });
+  else L.push({ cls: 'na', text: 'ระยะเวลาผ่านไป ' + int(C.elapsed) + ' จาก ' + int(C.total) + ' วัน คงเหลือ ' + int(Math.max(0, C.remain)) + ' วัน' });
+  if (C.inst.length) {
+    var od = C.inst.filter(function (x) { return x.pill === 'p-bad'; });
+    L.push({ cls: od.length ? 'warn' : 'ok', text: 'เบิกจ่ายแล้ว ' + int(C.paid) + ' บาท (' + P2(C.paid / (num(C.P.bac) || C.instTotal || 1)) + ')' + (od.length ? ' มี ' + od.length + ' งวดเลยกำหนดส่งงาน' : '') });
+  }
+  var iss = (pr.issues || []).filter(function (x) { return x.problem; });
+  if (iss.length) L.push({ cls: 'warn', text: 'ปัญหาหลัก: ' + iss[0].problem + (iss.length > 1 ? ' และอีก ' + (iss.length - 1) + ' เรื่อง' : '') });
+  var rq = (pr.requests || []).filter(function (x) { return x.text; });
+  if (rq.length) L.push({ cls: 'na', text: 'เรื่องเสนอเพื่อพิจารณา ' + rq.length + ' เรื่อง' });
+  return L.slice(0, 6);
+}
+function sSummary(C, pr) {
+  return shell('สรุปสำหรับผู้บริหาร', 'ข้อมูล ณ วันที่ ' + th(C.dd), '<ul class="sum">' + summaryLines(C, pr).map(function (l) { return '<li><span class="lamp bg-' + l.cls + '"></span><p>' + esc(l.text) + '</p></li>'; }).join('') + '</ul>');
+}
+function bodyLines(t) { return String(t || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean); }
+function sCustom(c) {
+  var lines = bodyLines(c.body), txt = lines.length ? '<ul class="cb">' + lines.map(function (l) { var b = /^[-•*]\s*/.test(l); return '<li class="' + (b ? 'bl' : '') + '">' + esc(l.replace(/^[-•*]\s*/, '')) + '</li>'; }).join('') + '</ul>' : '';
+  return shell(esc(c.title || 'หัวข้อเพิ่มเติม'), esc(c.sub || ''), c.img ? '<div class="cst"><div>' + txt + '</div><figure><img src="' + c.img + '" alt=""></figure></div>' : txt);
+}
+function notesAuto(k, C, pr) {
+  if (k.indexOf('c_') === 0) { var c = customOf(pr, k); return c ? (c.title || '') + '\n' + bodyLines(c.body).join('\n') : ''; }
+  var m = pr.meeting;
+  switch (k) {
+    case 'cover': return 'เรียนประธานและคณะกรรมการ ' + (m.presenter ? 'ผม/ดิฉัน ' + m.presenter + ' ' + (m.position || '') + ' ' : '') + 'ขอรายงานความก้าวหน้าโครงการ' + C.P.name + ' ข้อมูล ณ วันที่ ' + th(C.dd);
+    case 'summary': return 'สรุปประเด็นสำคัญ\n' + summaryLines(C, pr).map(function (l, i) { return (i + 1) + '. ' + l.text; }).join('\n');
+    case 'status': return 'ณ วันที่ ' + th(C.dd) + ' ผลงานตามแผนอยู่ที่ ' + P2(C.plan) + ' ผลงานจริง ' + P2(C.actual) + ' ' + (C.diff < -0.00005 ? 'ต่ำกว่าแผน ' + P2(-C.diff) : C.diff > 0.00005 ? 'สูงกว่าแผน ' + P2(C.diff) : 'เท่ากับแผน') + ' สถานะ' + C.verdict + '\nระยะเวลาผ่านไป ' + int(C.elapsed) + ' จาก ' + int(C.total) + ' วัน คงเหลือ ' + int(Math.max(0, C.remain)) + ' วัน' + (C.prev ? '\nเทียบกับรายงานครั้งก่อนเมื่อ ' + th(C.prev.date) + ' ผลงานเพิ่มขึ้น ' + P2(C.dAct) : '');
+    case 'scurve': return 'เส้นประสีเทาคือแผนงานสะสม เส้นทึบสีน้ำเงินคือผลงานจริงสะสม' + (C.fc && C.fc > C.dd ? ' เส้นจุดสีเหลืองคือแนวโน้มหากทำงานในอัตราปัจจุบัน ซึ่งจะแล้วเสร็จประมาณ ' + th(C.fc) : '') + '\nช่องว่างระหว่างสองเส้น ณ วันที่รายงานคือ ' + P2(Math.abs(C.diff));
+    case 'groups': var w = C.groups.slice().sort(function (a, b) { return (a.act - a.plan) - (b.act - b.plan); })[0];
+      return 'ความก้าวหน้าแยกตาม' + C.groupBy + (w && w.plan - w.act > 0.005 ? '\n' + C.groupBy + 'ที่ล่าช้ามากที่สุดคือ ' + w.name + ' ผลงาน ' + (w.act * 100).toFixed(1) + '% จากแผน ' + (w.plan * 100).toFixed(1) + '%' : '\nทุก' + C.groupBy + 'เป็นไปตามแผน') + (C.behindTasks.length ? '\nรายการที่ต้องเร่ง: ' + C.behindTasks.slice(0, 3).map(function (o) { return o.t.desc; }).join(', ') : '');
+    case 'work': return 'ในรอบ ' + int(pr.period) + ' วันที่ผ่านมา มีงานดำเนินการ/แล้วเสร็จ ' + C.done.length + ' รายการ\nแผนงานช่วงถัดไปมี ' + C.next.length + ' รายการ' + (C.next.length ? ' เริ่มจาก ' + C.next.slice(0, 3).map(function (x) { return x.desc; }).join(', ') : '');
+    case 'inst': var od = C.inst.filter(function (x) { return x.pill === 'p-bad'; });
+      return 'ข้อมูลงวดงาน ' + C.inst.length + ' งวด เบิกจ่ายแล้ว ' + money(C.paid) + ' บาท' + (od.length ? '\nงวดที่เลยกำหนดส่งงาน: ' + od.map(function (x) { return x.label + ' (กำหนด ' + th(x.due, true) + ')'; }).join(', ') : '');
+    case 'photos': return 'ภาพถ่ายความก้าวหน้าหน้างาน\n' + S.photos.filter(function (p) { return !p.hide && p.caption; }).map(function (p) { return '- ' + p.caption; }).join('\n');
+    case 'issues': var is = (pr.issues || []).filter(function (x) { return x.problem; });
+      return is.length ? is.map(function (x, i) { return (i + 1) + '. ' + x.problem + (x.fix ? ' แนวทางแก้ไข: ' + x.fix : ''); }).join('\n') : 'ในรอบนี้ไม่มีปัญหาอุปสรรคที่มีผลต่อแผนงาน';
+    case 'forecast': return C.fc ? 'หากรักษาอัตราความก้าวหน้าปัจจุบัน คาดว่าจะแล้วเสร็จ ' + th(C.fc) + (C.late > 0 ? ' ช้ากว่าสัญญา ' + int(C.late) + ' วัน ค่าปรับโดยประมาณ ' + int(C.penalty) + ' บาท' : ' ทันตามสัญญา') + (C.needRate != null ? '\nต้องทำผลงานเฉลี่ย ' + (C.needRate * 100).toFixed(2) + '% ต่อสัปดาห์ จากที่ผ่านมา ' + (C.pastRate * 100).toFixed(2) + '%' : '') : 'ยังไม่มีข้อมูลเพียงพอสำหรับการคาดการณ์';
+    case 'requests': return 'ขอเสนอคณะกรรมการพิจารณา\n' + (pr.requests || []).filter(function (x) { return x.text; }).map(function (x, i) { return (i + 1) + '. ' + x.text; }).join('\n');
+  }
+  return '';
+}
+function notesFor(k, C, pr) { var o = pr.notes && pr.notes[k]; return o != null && o !== '' ? o : notesAuto(k, C, pr); }
+
+/* ===================== PowerPoint export (native, editable) ===================== */
+function loadPptx() {
+  if (window.PptxGenJS) return Promise.resolve();
+  var load = function (src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); };
+  return load('vendor/pptxgen.bundle.js').catch(function () { return load('https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js'); })
+    .catch(function () { throw new Error('โหลดตัวสร้างไฟล์ PowerPoint ไม่ได้ – ตรวจการเชื่อมต่ออินเทอร์เน็ต'); });
+}
+function imgSize(src) { return new Promise(function (res) { var i = new Image(); i.onload = function () { res({ w: i.naturalWidth || 1, h: i.naturalHeight || 1 }); }; i.onerror = function () { res({ w: 4, h: 3 }); }; i.src = src; }); }
+function dataUri(d) { return String(d || '').replace(/^data:/, ''); }
+var PF = 'TH SarabunPSK', PC = { ink: '14233A', soft: '556274', mute: '7A8594', navy: '1F4A86', line: 'E3E7EC', track: 'EDF0F3', yellow: 'F2B705', ok: '1E7A47', warn: 'D99A00', bad: 'C0392B', warnT: 'A86A00' };
+function pcol(cls) { return cls === 'ok' ? PC.ok : cls === 'warn' ? PC.warn : cls === 'bad' ? PC.bad : PC.navy; }
+function ptxt(s, t, x, y, w, h, o) { s.addText(t, Object.assign({ x: x, y: y, w: w, h: h, fontFace: PF, fontSize: 18, color: PC.ink, margin: 0, valign: 'top', isTextBox: true }, o || {})); }
+function prect(pp, s, x, y, w, h, color, o) { s.addShape(pp.ShapeType.rect, Object.assign({ x: x, y: y, w: Math.max(0.001, w), h: Math.max(0.001, h), fill: { color: color }, line: { color: color, width: 0 } }, o || {})); }
+function pline(pp, s, x, y, w, h, color, wd, dash) { s.addShape(pp.ShapeType.line, { x: x, y: y, w: w, h: h, line: { color: color, width: wd || 1, dashType: dash || 'solid' } }); }
+function pdot(pp, s, x, y, d, color) { s.addShape(pp.ShapeType.ellipse, { x: x - d / 2, y: y - d / 2, w: d, h: d, fill: { color: color }, line: { color: color, width: 0 } }); }
+function phead(s, title, sub) { ptxt(s, title, 0.75, 0.42, 11.8, 0.72, { fontSize: 40, bold: true, valign: 'middle' }); if (sub) ptxt(s, sub, 0.75, 1.12, 11.8, 0.4, { fontSize: 19, color: PC.soft }); }
+function pfoot(s, C, no, tot) {
+  ptxt(s, C.P.name, 0.75, 7.0, 6.2, 0.3, { fontSize: 13, color: PC.mute, fit: 'shrink' });
+  ptxt(s, 'ข้อมูล ณ วันที่ ' + th(C.dd, true), 5.1, 7.0, 3.1, 0.3, { fontSize: 13, color: PC.mute, align: 'center' });
+  ptxt(s, no + ' / ' + tot, 10.6, 7.0, 2.0, 0.3, { fontSize: 13, color: PC.mute, align: 'right' });
+}
+function pfacts(s, items, y) {
+  items.forEach(function (it, i) { var x = 0.75 + i * 2.97;
+    ptxt(s, it[0], x, y, 2.85, 0.32, { fontSize: 16, color: '6B7684' });
+    ptxt(s, it[1], x, y + 0.32, 2.85, 0.55, { fontSize: 28, bold: true, color: it[3] || PC.ink, valign: 'middle' });
+    if (it[2]) ptxt(s, it[2], x, y + 0.88, 2.85, 0.5, { fontSize: 14, color: PC.soft }); });
+}
+function bcell(text, o) { return { text: text, options: Object.assign({ fontFace: PF, fontSize: 16, color: PC.ink, valign: 'top', margin: [3, 8, 3, 0], border: [{ type: 'none' }, { type: 'none' }, { pt: 1, color: PC.line }, { type: 'none' }] }, o || {}) }; }
+function hcell(text, o) { return bcell(text, Object.assign({ fontSize: 14, color: '6B7684', border: [{ type: 'none' }, { type: 'none' }, { pt: 2, color: PC.ink }, { type: 'none' }] }, o || {})); }
+
+function pCover(pp, s, C, pr) {
+  var P = C.P, m = pr.meeting;
+  prect(pp, s, 0, 0, 4.33, 7.5, PC.ink);
+  prect(pp, s, 3.95, 0, 0.38, 7.5, PC.yellow);
+  for (var i = 0; i <= 75; i++) { var l = i % 10 === 0 ? 0.25 : i % 5 === 0 ? 0.17 : 0.09; pline(pp, s, 4.33 - l, i * 0.1, l, 0, PC.ink, 1); }
+  if (pr.logo) s.addImage({ data: dataUri(pr.logo), x: 0.55, y: 0.55, w: 1.9, h: 1.35, sizing: { type: 'contain', w: 1.9, h: 1.35 } });
+  ptxt(s, [{ text: m.title || 'รายงานความก้าวหน้าการก่อสร้าง', options: { bold: true, breakLine: !!m.no } }].concat(m.no ? [{ text: 'ครั้งที่ ' + m.no, options: { fontSize: 20, color: 'C9D1DB' } }] : []), 0.55, 2.4, 3.2, 2.2, { fontSize: 24, color: 'FFFFFF', valign: 'middle' });
+  ptxt(s, [{ text: 'ข้อมูล ณ วันที่', options: { breakLine: true } }, { text: th(C.dd), options: { fontSize: 28, bold: true, color: PC.yellow } }], 0.55, 5.7, 3.3, 1.2, { fontSize: 20, color: 'FFFFFF', valign: 'bottom' });
+  ptxt(s, P.name, 4.95, 0.8, 7.7, 1.9, { fontSize: 46, bold: true, valign: 'top', fit: 'shrink' });
+  var rows = [];
+  [['ผู้ว่าจ้าง', P.employer], ['ผู้รับจ้าง', P.contractor], ['เลขที่สัญญา', P.contract_no], ['วงเงินสัญญา', num(P.bac) ? money(P.bac) + ' บาท' : ''], ['ระยะเวลา', C.ok ? th(C.start) + ' – ' + th(C.end) + ' (' + int(C.total) + ' วัน)' : '']].forEach(function (r) {
+    if (r[1]) rows.push([bcell(r[0], { color: '6B7684', fontSize: 18, border: [{ type: 'none' }, { type: 'none' }, { type: 'none' }, { type: 'none' }] }), bcell(r[1], { bold: true, fontSize: 18, border: [{ type: 'none' }, { type: 'none' }, { type: 'none' }, { type: 'none' }] })]);
+  });
+  if (rows.length) s.addTable(rows, { x: 4.95, y: 3.0, w: 7.6, colW: [1.7, 5.9] });
+  var who = [];
+  if (m.presenter) who.push({ text: m.presenter, options: { bold: true, fontSize: 22, breakLine: true } });
+  if (m.position || m.org) who.push({ text: [m.position, m.org].filter(Boolean).join('  '), options: { breakLine: true } });
+  if (m.meetDate) who.push({ text: 'ประชุมวันที่ ' + th(m.meetDate) });
+  if (who.length) ptxt(s, who, 4.95, 5.6, 7.6, 1.3, { fontSize: 18, valign: 'bottom' });
+}
+function pSummary(pp, s, C, pr) {
+  phead(s, 'สรุปสำหรับผู้บริหาร', 'ข้อมูล ณ วันที่ ' + th(C.dd));
+  summaryLines(C, pr).forEach(function (l, i) { var y = 1.8 + i * 0.82; pdot(pp, s, 0.95, y + 0.3, 0.3, pcol(l.cls)); ptxt(s, l.text, 1.35, y, 11.2, 0.72, { fontSize: 24, valign: 'middle', fit: 'shrink' }); });
+}
+function pStatus(pp, s, C) {
+  phead(s, 'สถานะโครงการ', 'ข้อมูล ณ วันที่ ' + th(C.dd));
+  var col = pcol(C.cls);
+  pdot(pp, s, 1.06, 2.0, 0.62, col);
+  ptxt(s, C.verdict, 1.55, 1.62, 5.6, 0.6, { fontSize: 36, bold: true, color: C.cls === 'warn' ? PC.warnT : col, valign: 'middle' });
+  ptxt(s, (Math.abs(C.diff) < 0.00005 ? 'ผลงานจริงเท่ากับแผน' : 'ผลงานจริง' + (C.diff < 0 ? 'ต่ำกว่า' : 'สูงกว่า') + 'แผน ' + P2(Math.abs(C.diff))) + (C.prev ? '\nเพิ่มขึ้น ' + sgn(C.dAct) + ' จากรายงานครั้งก่อน (' + th(C.prev.date, true) + ')' : ''), 1.55, 2.2, 5.6, 0.8, { fontSize: 17, color: PC.soft });
+  [['ตามแผน', P2(C.plan), PC.ink], ['ผลงานจริง', P2(C.actual), PC.ink], ['ส่วนต่าง', sgn(C.diff), C.diff < -0.00005 ? (C.cls === 'warn' ? PC.warnT : pcol(C.cls)) : PC.ok]].forEach(function (n, i) {
+    var x = 7.0 + i * 1.88; ptxt(s, n[0], x, 1.55, 1.8, 0.32, { fontSize: 16, color: '6B7684', align: 'right' }); ptxt(s, n[1], x, 1.85, 1.8, 0.7, { fontSize: 38, bold: true, color: n[2], align: 'right', valign: 'middle' });
+  });
+  var x0 = 0.85, W = 11.63, y = 3.55, h = 0.5, X = function (v) { return x0 + W * Math.max(0, Math.min(1, v)); };
+  prect(pp, s, x0, y, W, h, PC.yellow);
+  if (C.actual > 0) prect(pp, s, x0, y, X(C.actual) - x0, h, PC.ink);
+  var a = Math.min(C.plan, C.actual), b = Math.max(C.plan, C.actual);
+  if (b - a > 0.0005) prect(pp, s, X(a), y, X(b) - X(a), h, C.diff < 0 ? PC.bad : PC.ok);
+  for (var i = 0; i <= 100; i++) { var xx = X(i / 100), ln = i % 10 === 0 ? 0.22 : i % 5 === 0 ? 0.15 : 0.08, c = i / 100 <= C.actual + 1e-9 ? 'F2F4F7' : PC.ink; pline(pp, s, xx, y, 0, ln, c, i % 10 ? 0.75 : 1.25);
+    if (i % 10 === 0 && i > 0 && i < 100) ptxt(s, String(i), xx - 0.3, y + 0.24, 0.6, 0.24, { fontSize: 11, bold: true, color: c, align: 'center' }); }
+  s.addShape(pp.ShapeType.triangle, { x: X(C.plan) - 0.1, y: y - 0.18, w: 0.2, h: 0.15, rotate: 180, fill: { color: PC.soft }, line: { color: PC.soft, width: 0 } });
+  ptxt(s, 'แผน ' + P2(C.plan), Math.min(Math.max(X(C.plan) - 1.2, 0.75), 10.2), y - 0.6, 2.4, 0.4, { fontSize: 20, bold: true, color: PC.soft, align: 'center' });
+  s.addShape(pp.ShapeType.triangle, { x: X(C.actual) - 0.1, y: y + h + 0.03, w: 0.2, h: 0.15, fill: { color: PC.ink }, line: { color: PC.ink, width: 0 } });
+  ptxt(s, 'ผลงานจริง ' + P2(C.actual), Math.min(Math.max(X(C.actual) - 1.4, 0.75), 9.8), y + h + 0.2, 2.8, 0.4, { fontSize: 20, bold: true, align: 'center' });
+  pline(pp, s, 0.75, 5.18, 11.83, 0, PC.ink, 1.5);
+  var tl = Math.max(0, Math.min(1, C.elapsed / Math.max(1, C.total)));
+  pfacts(s, [['ระยะเวลาผ่านไป', int(C.elapsed) + ' / ' + int(C.total) + ' วัน', P2(tl) + ' ของระยะเวลาสัญญา'], ['ระยะเวลาคงเหลือ', C.remain >= 0 ? int(C.remain) + ' วัน' : 'เกิน ' + int(-C.remain) + ' วัน', C.eot ? 'รวมขยายเวลา ' + int(C.eot) + ' วัน' : 'ไม่มีการขยายเวลา'],
+    ['วันสิ้นสุดสัญญา', th(C.end, true), 'เริ่มสัญญา ' + th(C.start, true)], ['วงเงินสัญญา', num(C.P.bac) ? int(C.P.bac) : '–', num(C.P.bac) ? 'บาท' : 'ยังไม่ระบุ']], 5.3);
+}
+function curveSeries(C) {
+  var t0 = C.start < C.bsMin ? C.start : C.bsMin, tEnd = C.end; if (C.bfMax > tEnd) tEnd = C.bfMax; if (C.fc && C.fc > tEnd) tEnd = C.fc;
+  var span = Math.max(1, diffDays(tEnd, t0)), step = Math.max(1, Math.round(span / 60)), L = [], pl = [], ac = [], tr = [], lastM = -1, d, dd = C.dd > tEnd ? tEnd : C.dd;
+  var pts = []; for (d = t0; d < tEnd; d = addDays(d, step)) pts.push(d); pts.push(tEnd);
+  if (dd >= t0 && pts.every(function (x) { return x.getTime() !== dd.getTime(); })) { pts.push(dd); pts.sort(function (a, b) { return a - b; }); }
+  pts.forEach(function (x) {
+    var lab = ''; if (x.getMonth() !== lastM) { lab = TMS[x.getMonth()] + String(x.getFullYear() + 543).slice(-2); lastM = x.getMonth(); }
+    L.push(lab); pl.push(+(C.planAt(x) * 100).toFixed(2)); ac.push(x <= dd ? +(C.actAt(x) * 100).toFixed(2) : null);
+    if (C.fc && C.fc > dd && x >= dd) tr.push(+((C.actual + (1 - C.actual) * Math.min(1, diffDays(x, dd) / Math.max(1, diffDays(C.fc, dd)))) * 100).toFixed(2)); else tr.push(x.getTime() === dd.getTime() ? +(C.actual * 100).toFixed(2) : null);
+  });
+  return { L: L, pl: pl, ac: ac, tr: tr, hasTr: C.fc && C.fc > dd };
+}
+function pCurve(pp, s, C) {
+  phead(s, 'แผนงานเทียบผลงานจริง', 'S-Curve ผลงานสะสม (น้ำหนักตาม' + C.weightBy + ')');
+  var cs = curveSeries(C), data = [{ name: 'แผนงาน (สะสม)', labels: cs.L, values: cs.pl }, { name: 'ผลงานจริง (สะสม)', labels: cs.L, values: cs.ac }];
+  if (cs.hasTr) data.push({ name: 'แนวโน้มที่อัตราปัจจุบัน', labels: cs.L, values: cs.tr });
+  s.addChart(pp.ChartType.line, data, { x: 0.6, y: 1.6, w: 9.1, h: 5.3, chartColors: ['A4AFBD', PC.navy, PC.warn], lineSize: 3, lineDataSymbol: 'none', displayBlanksAs: 'gap',
+    showLegend: true, legendPos: 't', legendFontFace: PF, legendFontSize: 14, legendColor: '3C495A',
+    catAxisLabelFontFace: PF, catAxisLabelFontSize: 13, catAxisLabelColor: '6B7684', catAxisLabelFrequency: 1, catAxisLineShow: true, catGridLine: { style: 'none' },
+    valAxisLabelFontFace: PF, valAxisLabelFontSize: 13, valAxisLabelColor: '6B7684', valAxisMinVal: 0, valAxisMaxVal: 100, valAxisMajorUnit: 25, valAxisLabelFormatCode: '0"%"', valGridLine: { color: PC.line, size: 1 } });
+  var R = [['แผน ณ วันที่รายงาน', P2(C.plan), PC.soft], ['ผลงานจริง', P2(C.actual), PC.navy], ['ส่วนต่าง', sgn(C.diff), C.diff < -0.00005 ? (C.cls === 'warn' ? PC.warnT : pcol(C.cls)) : PC.ok], ['สิ้นสุดสัญญา', th(C.end, true), PC.bad]];
+  if (C.fc) R.push(['คาดว่าแล้วเสร็จ', th(C.fc, true), C.late > 0 ? PC.bad : PC.ok]);
+  R.forEach(function (r, i) { var y = 1.75 + i * 1.0; ptxt(s, r[0], 10.0, y, 2.6, 0.3, { fontSize: 15, color: '6B7684' }); ptxt(s, r[1], 10.0, y + 0.3, 2.6, 0.55, { fontSize: 28, bold: true, color: r[2], valign: 'middle' }); });
+}
+function pGroups(pp, s, C) {
+  phead(s, 'ความก้าวหน้าแยกตาม' + C.groupBy, 'เปรียบเทียบผลงานจริงกับแผน ณ วันที่รายงาน');
+  var names = C.groups.map(function (g) { return g.name; }), h = Math.min(5.3, 0.9 + C.groups.length * 0.55);
+  s.addChart(pp.ChartType.bar, [{ name: 'ตามแผน', labels: names, values: C.groups.map(function (g) { return +(g.plan * 100).toFixed(1); }) }, { name: 'ผลงานจริง', labels: names, values: C.groups.map(function (g) { return +(g.act * 100).toFixed(1); }) }],
+    { x: 0.6, y: 1.6, w: 7.4, h: h, barDir: 'bar', barGrouping: 'clustered', barGapWidthPct: 60, chartColors: ['B8C2CE', PC.navy], catAxisOrientation: 'maxMin',
+      showValue: true, dataLabelPosition: 'outEnd', dataLabelFormatCode: '0.0"%"', dataLabelFontFace: PF, dataLabelFontSize: 12, dataLabelColor: '3C495A',
+      showLegend: true, legendPos: 't', legendFontFace: PF, legendFontSize: 14, catAxisLabelFontFace: PF, catAxisLabelFontSize: 15, catAxisLabelColor: PC.ink,
+      valAxisHidden: true, valAxisMinVal: 0, valAxisMaxVal: 115, valGridLine: { style: 'none' }, catGridLine: { style: 'none' } });
+  ptxt(s, 'งานที่ล่าช้ากว่าแผนมากที่สุด', 8.4, 1.65, 4.2, 0.45, { fontSize: 20, bold: true });
+  if (C.behindTasks.length) s.addTable([[hcell('รายการ'), hcell('แผน', { align: 'right' }), hcell('จริง', { align: 'right' })]].concat(C.behindTasks.map(function (o) {
+    return [bcell(o.t.desc), bcell(Math.round(o.pl * 100) + '%', { align: 'right', color: PC.soft }), bcell(Math.round(o.t._p * 100) + '%', { align: 'right', bold: true, color: PC.bad })]; })), { x: 8.4, y: 2.15, w: 4.2, colW: [2.6, 0.8, 0.8] });
+  else ptxt(s, 'ไม่มีรายการงานที่ล่าช้ากว่าแผนเกิน 5%', 8.4, 2.2, 4.2, 0.5, { fontSize: 17, color: PC.mute });
+}
+function pWork(pp, s, C, pr) {
+  phead(s, 'ผลงานและแผนงานถัดไป', 'รอบรายงาน ' + int(pr.period) + ' วัน');
+  var col = function (x, title, list, next) {
+    ptxt(s, title, x, 1.65, 5.7, 0.45, { fontSize: 20, bold: true });
+    var rows = list.slice(0, 9).map(function (t) { return [bcell(t.desc), bcell(next ? th(t._bs, true) + ' – ' + th(t._bf, true) : t._p >= 1 ? 'แล้วเสร็จ' : 'ดำเนินการ ' + Math.round(t._p * 100) + '%', { align: 'right', color: !next && t._p >= 1 ? PC.ok : PC.soft, bold: !next && t._p >= 1 })]; });
+    if (rows.length) s.addTable(rows, { x: x, y: 2.15, w: 5.7, colW: [3.5, 2.2] }); else ptxt(s, 'ไม่มีรายการ', x, 2.2, 5.7, 0.4, { fontSize: 17, color: PC.mute });
+    if (list.length > 9) ptxt(s, 'และอีก ' + (list.length - 9) + ' รายการ', x, 6.5, 5.7, 0.3, { fontSize: 13, color: PC.mute });
+  };
+  col(0.75, 'ช่วงที่ผ่านมา ' + th(C.p0, true) + ' – ' + th(C.dd, true), C.done, false);
+  col(6.88, 'แผนงาน ' + th(addDays(C.dd, 1), true) + ' – ' + th(C.n1, true), C.next, true);
+}
+var PILL = { 'p-ok': ['DDF0E4', '1E6B40'], 'p-mid': ['DCE7F7', PC.navy], 'p-warn': ['FCEFD0', '8A5600'], 'p-bad': ['F9DDD9', '9E2A1E'], 'p-na': ['EDF0F3', '5A6676'] };
+function pInst(pp, s, C, pg, pi, n) {
+  var base = num(C.P.bac) || C.instTotal;
+  phead(s, 'งวดงานและการเบิกจ่าย', 'จากวงเงิน ' + money(base) + ' บาท' + (n > 1 ? ' (' + (pi + 1) + '/' + n + ')' : ''));
+  var y = 1.75;
+  if (!pi) { ptxt(s, 'เบิกจ่ายแล้ว ' + money(C.paid) + ' บาท', 0.75, 1.62, 4.3, 0.42, { fontSize: 20, valign: 'middle' });
+    prect(pp, s, 5.15, 1.75, 6.3, 0.17, PC.track); prect(pp, s, 5.15, 1.75, 6.3 * Math.min(1, C.paid / (base || 1)), 0.17, PC.ok);
+    ptxt(s, P2(C.paid / (base || 1)), 11.55, 1.62, 1.03, 0.42, { fontSize: 20, bold: true, align: 'right', valign: 'middle' }); y = 2.3; }
+  s.addTable([[hcell('งวด'), hcell('จำนวนเงิน (บาท)', { align: 'right' }), hcell('กำหนดส่งงาน'), hcell('สถานะ')]].concat(pg.map(function (x) {
+    var dt = x.paid && x.paid !== 'yes' ? ' ' + th(x.paid, true) : x.accepted && x.accepted !== 'yes' && !x.paid ? ' ' + th(x.accepted, true) : x.submitted && x.submitted !== 'yes' && !x.accepted && !x.paid ? ' ' + th(x.submitted, true) : '', p = PILL[x.pill];
+    return [bcell(x.label, { fontSize: 18 }), bcell(money(x.amount), { align: 'right', fontSize: 18 }), bcell(th(x.due), { fontSize: 18 }), bcell(x.st + dt, { bold: true, color: p[1], fill: { color: p[0] }, fontSize: 16 })];
+  })), { x: 0.75, y: y, w: 11.83, colW: [2.8, 2.8, 3.0, 3.23] });
+}
+async function pPhotos(pp, s, C, pg, pi, n) {
+  phead(s, 'ภาพถ่ายหน้างาน', n > 1 ? 'ชุดที่ ' + (pi + 1) + ' จาก ' + n : '');
+  var X = 0.75, Y = 1.65, W = 11.83, H = 5.15, g = 0.25, boxes;
+  if (pg.length === 1) boxes = [[X, Y, W, H]];
+  else if (pg.length === 2) boxes = [[X, Y, (W - g) / 2, H], [X + (W + g) / 2, Y, (W - g) / 2, H]];
+  else if (pg.length === 3) { var w1 = (W - g) * 0.6; boxes = [[X, Y, w1, H], [X + w1 + g, Y, W - w1 - g, (H - g) / 2], [X + w1 + g, Y + (H + g) / 2, W - w1 - g, (H - g) / 2]]; }
+  else boxes = [[X, Y, (W - g) / 2, (H - g) / 2], [X + (W + g) / 2, Y, (W - g) / 2, (H - g) / 2], [X, Y + (H + g) / 2, (W - g) / 2, (H - g) / 2], [X + (W + g) / 2, Y + (H + g) / 2, (W - g) / 2, (H - g) / 2]];
+  for (var i = 0; i < pg.length; i++) {
+    var p = pg[i], b = boxes[i], sz = await imgSize(p.data), r = sz.w / sz.h, iw, ih;
+    if (r > b[2] / b[3]) { ih = b[3]; iw = ih * r; } else { iw = b[2]; ih = iw / r; }
+    s.addImage({ data: dataUri(p.data), x: b[0], y: b[1], w: iw, h: ih, sizing: { type: 'cover', w: b[2], h: b[3] } });
+    if (p.caption || p.date) { prect(pp, s, b[0], b[1] + b[3] - 0.62, b[2], 0.62, '0A121E', { fill: { color: '0A121E', transparency: 30 } });
+      ptxt(s, [{ text: p.caption || '', options: { breakLine: !!p.date } }].concat(p.date ? [{ text: th(p.date), options: { fontSize: 12, color: 'D5DBE3' } }] : []), b[0] + 0.15, b[1] + b[3] - 0.6, b[2] - 0.3, 0.58, { fontSize: 16, color: 'FFFFFF', valign: 'middle' }); }
+  }
+}
+function pIssues(pp, s, C, pg, pi, n) {
+  phead(s, 'ปัญหาอุปสรรคและแนวทางแก้ไข', n > 1 ? (pi + 1) + ' / ' + n : '');
+  if (!pg.length) { ptxt(s, 'ไม่มีปัญหาอุปสรรคที่มีผลต่อแผนงานในรอบรายงานนี้', 0.75, 2.4, 11.8, 0.8, { fontSize: 30, color: PC.ok }); return; }
+  s.addTable([[hcell('ปัญหาอุปสรรค'), hcell('ผลกระทบ'), hcell('แนวทางแก้ไข')]].concat(pg.map(function (x) {
+    return [bcell(x.problem, { bold: true, fontSize: 17 }), bcell(x.impact || '–', { fontSize: 17 }), bcell([{ text: x.fix || '–', options: { breakLine: !!x.owner } }].concat(x.owner ? [{ text: 'ผู้รับผิดชอบ/กำหนด: ' + x.owner, options: { fontSize: 14, color: PC.soft } }] : []), { fontSize: 17 })];
+  })), { x: 0.75, y: 1.7, w: 11.83, colW: [3.4, 4.0, 4.43] });
+}
+function pForecast(pp, s, C) {
+  phead(s, 'คาดการณ์การแล้วเสร็จ', 'ข้อมูล ณ วันที่ ' + th(C.dd));
+  if (C.actual >= 0.99995) { ptxt(s, 'งานแล้วเสร็จครบ 100% ตามสัญญา', 0.75, 2.2, 11.8, 0.8, { fontSize: 32, bold: true, color: PC.ok }); return; }
+  if (!C.fc) { ptxt(s, 'ยังไม่มีผลงานจริงเพียงพอสำหรับคาดการณ์วันแล้วเสร็จ', 0.75, 2.2, 11.8, 0.8, { fontSize: 26, color: PC.mute }); return; }
+  var late = C.late > 0, col = late ? PC.bad : PC.ok;
+  ptxt(s, 'หากรักษาอัตราความก้าวหน้าปัจจุบัน คาดว่าจะแล้วเสร็จ', 0.75, 1.65, 11.8, 0.4, { fontSize: 20, color: PC.soft });
+  ptxt(s, th(C.fc), 0.75, 2.05, 11.8, 0.85, { fontSize: 52, bold: true, color: col, valign: 'middle' });
+  ptxt(s, late ? 'ช้ากว่าวันสิ้นสุดสัญญา ' + int(C.late) + ' วัน' : C.late === 0 ? 'ตรงกับวันสิ้นสุดสัญญา' : 'ก่อนวันสิ้นสุดสัญญา ' + int(-C.late) + ' วัน', 0.75, 2.9, 11.8, 0.45, { fontSize: 24, bold: true, color: col });
+  var a = C.start, z = C.end; [C.fc, C.dd].forEach(function (d) { if (d && d > z) z = d; }); z = addDays(z, Math.ceil(diffDays(z, a) * 0.04));
+  var X = function (d) { return 0.95 + 11.4 * diffDays(d, a) / Math.max(1, diffDays(z, a)); }, y = 4.05;
+  prect(pp, s, 0.95, y - 0.05, X(C.end) - 0.95, 0.1, 'DCE3EB');
+  if (late) prect(pp, s, X(C.end), y - 0.05, X(C.fc) - X(C.end), 0.1, PC.bad);
+  prect(pp, s, 0.95, y - 0.05, X(C.dd > C.end ? C.end : C.dd) - 0.95, 0.1, PC.navy);
+  var mk = function (d, t, c, up) { var x = X(d); pdot(pp, s, x, y, 0.2, c); ptxt(s, t, Math.min(Math.max(x - 1.3, 0.75), 10.0), up ? y - 0.55 : y + 0.18, 2.6, 0.35, { fontSize: 15, bold: true, color: c, align: 'center' }); };
+  mk(C.start, 'เริ่มสัญญา ' + th(C.start, true), PC.soft, false); mk(C.dd, 'วันที่รายงาน ' + th(C.dd, true), PC.navy, true); mk(C.end, 'สิ้นสุดสัญญา ' + th(C.end, true), PC.ink, false); mk(C.fc, 'คาดว่าเสร็จ ' + th(C.fc, true), col, true);
+  pline(pp, s, 0.75, 4.85, 11.83, 0, PC.ink, 1.5);
+  pfacts(s, [['ความก้าวหน้าเทียบแผน', C.spi.toFixed(2) + ' เท่า', C.spi >= 1 ? 'ทำได้ตามหรือเร็วกว่าแผน' : 'ถึงระดับแผนของ ' + int(C.es) + ' วันแรก'], ['อัตราผลงานที่ผ่านมา', (C.pastRate * 100).toFixed(2) + '%', 'ต่อสัปดาห์โดยเฉลี่ย'],
+    ['ต้องทำให้ได้', C.needRate != null ? (C.needRate * 100).toFixed(2) + '%' : '–', C.needRate != null ? 'ต่อสัปดาห์ จึงจะทันสัญญา' : 'เกินวันสิ้นสุดสัญญาแล้ว', C.needRate != null && C.needRate > C.pastRate * 1.05 ? PC.bad : PC.ink],
+    ['ค่าปรับโดยประมาณ', C.penalty ? int(C.penalty) : '0', C.penalty ? 'บาท (วันละ ' + int(C.perDay) + ')' : 'บาท', C.penalty ? PC.bad : PC.ink]], 4.95);
+  ptxt(s, 'คาดการณ์ด้วยวิธี Earned Schedule จากเส้นแผนสะสมและผลงานจริง ณ วันที่รายงาน เป็นค่าประมาณเพื่อประกอบการพิจารณา', 0.75, 6.55, 11.8, 0.3, { fontSize: 12, color: PC.mute });
+}
+function pRequests(pp, s, C, pg) {
+  phead(s, 'เรื่องเสนอเพื่อพิจารณา', 'ขอให้คณะกรรมการพิจารณา');
+  pg.forEach(function (x, i) { var y = 1.75 + i * 1.25;
+    ptxt(s, String(x._n), 0.75, y, 0.7, 0.8, { fontSize: 44, bold: true, color: PC.navy });
+    ptxt(s, x.text, 1.6, y, 11.0, 0.55, { fontSize: 26, bold: true, fit: 'shrink' });
+    if (x.detail) ptxt(s, x.detail, 1.6, y + 0.55, 11.0, 0.5, { fontSize: 18, color: PC.soft, fit: 'shrink' });
+    pline(pp, s, 0.75, y + 1.15, 11.83, 0, PC.track, 1); });
+}
+function pCustom(pp, s, C, c) {
+  phead(s, c.title || 'หัวข้อเพิ่มเติม', c.sub || '');
+  var lines = bodyLines(c.body), w = c.img ? 6.3 : 11.8;
+  if (lines.length) ptxt(s, lines.map(function (l, i) { var b = /^[-•*]\s*/.test(l); return { text: l.replace(/^[-•*]\s*/, ''), options: { bullet: b, breakLine: i < lines.length - 1, paraSpaceAfter: 8 } }; }), 0.75, 1.75, w, 5.0, { fontSize: 22, fit: 'shrink' });
+  if (c.img) s.addImage({ data: dataUri(c.img), x: 7.35, y: 1.75, w: 5.23, h: 5.0, sizing: { type: 'contain', w: 5.23, h: 5.0 } });
+}
+async function buildPptx() {
+  await loadPptx(); await snapshot();
+  var C = S.C, pr = S.pr, list = buildSlides(C, pr, S.photos, true), tot = list.length, no = 0;
+  var pp = new PptxGenJS(); pp.layout = 'LAYOUT_WIDE'; pp.title = C.P.name; pp.subject = pr.meeting.title || ''; pp.author = pr.meeting.presenter || '';
+  pp.theme = { headFontFace: PF, bodyFontFace: PF };
+  var add = function (key) { var s = pp.addSlide(); s.background = { color: 'FFFFFF' }; no++; var it = list[no - 1]; if (it && it.notes) s.addNotes(it.notes); if (key !== 'cover') pfoot(s, C, no, tot); return s; };
+  var keys = slideKeys(pr).filter(function (k) { return slideOn(pr, k); });
+  if (!C.ok) { pCover(pp, add('cover'), C, pr); return pp; }
+  for (var ki = 0; ki < keys.length; ki++) {
+    var k = keys[ki];
+    if (k === 'cover') pCover(pp, add(k), C, pr);
+    else if (k === 'summary') pSummary(pp, add(k), C, pr);
+    else if (k === 'status') pStatus(pp, add(k), C);
+    else if (k === 'scurve') pCurve(pp, add(k), C);
+    else if (k === 'groups') pGroups(pp, add(k), C);
+    else if (k === 'work') pWork(pp, add(k), C, pr);
+    else if (k === 'inst') { var ip = chunk(C.inst, INST_PER); ip.forEach(function (pg, i) { pInst(pp, add(k), C, pg, i, ip.length); }); }
+    else if (k === 'photos') { var pp2 = chunk(S.photos.filter(function (p) { return !p.hide; }), PH_PER); for (var i = 0; i < pp2.length; i++) await pPhotos(pp, add(k), C, pp2[i], i, pp2.length); }
+    else if (k === 'issues') { var il = (pr.issues || []).filter(function (x) { return x.problem; }), ic = il.length ? chunk(il, ISS_PER) : [[]]; ic.forEach(function (pg, i) { pIssues(pp, add(k), C, pg, i, ic.length); }); }
+    else if (k === 'forecast') pForecast(pp, add(k), C);
+    else if (k === 'requests') { var rl = (pr.requests || []).filter(function (x) { return x.text; }).map(function (x, i) { return Object.assign({ _n: i + 1 }, x); }); chunk(rl, REQ_PER).forEach(function (pg) { pRequests(pp, add(k), C, pg); }); }
+    else if (k.indexOf('c_') === 0) { var c = customOf(pr, k); if (c) pCustom(pp, add(k), C, c); }
+  }
+  return pp;
+}
+function safeName(s) { return String(s || 'นำเสนอ').replace(/[\\\/:*?"<>|]/g, '_').slice(0, 60); }
+async function exportPptx() {
+  toast('กำลังสร้างไฟล์ PowerPoint…', false, 8000);
+  var pp = await buildPptx();
+  await pp.writeFile({ fileName: safeName(S.C.P.name) + '_' + iso(S.C.dd) + '.pptx' });
+  toast('สร้างไฟล์ PowerPoint แล้ว');
+}
+
 </script>
 <script>
 /* ============ app state & screens ============ */
@@ -670,7 +987,9 @@ async function vHome() {
     (mine.length ? '<div class="plist" style="margin-top:12px">' + mine.map(function (p) {
       return '<div class="pitem" data-go="/p/' + esc(p.id) + '" tabindex="0" role="button"><span class="grow"><b>' + esc(p.name) + '</b><small>' + (p.source === 'demo' ? 'โครงการตัวอย่าง' : 'นำเข้า ' + th((p.imported || '').slice(0, 10), true) + (p.fileName ? '  ' + esc(p.fileName) : '')) + '  ' + p.tasks.length + ' รายการงาน</small></span>' +
         '<button class="btn sm bad" data-delp="' + esc(p.id) + '" aria-label="ลบ ' + esc(p.name) + '">ลบ</button></div>'; }).join('') + '</div>' : '') +
-    '</section><section class="panel"><h2>ลองใช้งาน</h2><p class="muted">โครงการตัวอย่างพร้อมปัญหาอุปสรรคและงวดงาน เพื่อดูหน้าตาสไลด์ทั้งหมด</p><button class="btn sec" data-act="demo">เปิดโครงการตัวอย่าง</button></section>';
+    '</section><section class="panel"><h2>ลองใช้งาน</h2><p class="muted">โครงการตัวอย่างพร้อมปัญหาอุปสรรคและงวดงาน เพื่อดูหน้าตาสไลด์ทั้งหมด</p><button class="btn sec" data-act="demo">เปิดโครงการตัวอย่าง</button></section>' +
+    '<section class="panel"><h2>สำรองข้อมูล</h2><p class="muted">ปัญหาอุปสรรค เรื่องเสนอ บทพูด และรูปถ่ายเก็บในเครื่องนี้ ควรสำรองเป็นไฟล์ไว้ใน Google Drive • ย้ายเครื่องหรือย้ายไป iPad ใช้กู้คืนจากไฟล์</p>' +
+    '<div class="row"><button class="btn sec" data-act="backup">สำรองข้อมูล</button><label class="btn sec">กู้คืนจากไฟล์<input type="file" id="restoreFile" class="hidden" accept=".json,application/json"></label></div></section>';
   $('#main').innerHTML = h;
 }
 
@@ -679,7 +998,7 @@ async function loadAll(pid) {
   var P = pid.indexOf('sc_') === 0 ? await scLoad(pid.slice(3)) : await DB.get('projects', pid);
   if (!P) throw new Error('ไม่พบโครงการ');
   var pr = await DB.get('pres', pid) || newPres(pid);
-  pr = Object.assign(newPres(pid), pr); pr.meeting = Object.assign(newPres(pid).meeting, pr.meeting); pr.thr = Object.assign({ amber: 2, red: 10 }, pr.thr); pr.pen = Object.assign({ rate: 0.1, min: 100 }, pr.pen);
+  pr = Object.assign(newPres(pid), pr); pr.custom = pr.custom || []; pr.notes = pr.notes || {}; pr.meeting = Object.assign(newPres(pid).meeting, pr.meeting); pr.thr = Object.assign({ amber: 2, red: 10 }, pr.thr); pr.pen = Object.assign({ rate: 0.1, min: 100 }, pr.pen);
   var photos = (await DB.byProject('photos', pid)).sort(function (a, b) { return num(a.order) - num(b.order) || String(a.id).localeCompare(String(b.id)); });
   S.P = P; S.pr = pr; S.photos = photos;
 }
@@ -714,7 +1033,7 @@ async function vPrep(pid) {
   await loadAll(pid);
   var P = S.P, pr = S.pr, ro = P.source === 'sc';
   setTop(project(P, pr).name, P.source === 'sc' ? 'ข้อมูลจาก site-control' : P.source === 'demo' ? 'โครงการตัวอย่าง' : 'นำเข้าจาก Excel',
-    '<button class="btn sec" data-act="print">พิมพ์ / PDF</button><button class="btn go" data-act="present">นำเสนอ</button>');
+    '<button class="btn sec" data-act="pptx" title="ไฟล์ PowerPoint แก้ไขได้">PowerPoint</button><button class="btn sec" data-act="print">PDF</button><button class="btn sec" data-act="present2" title="จอผู้นำเสนอ + จอโปรเจกเตอร์">นำเสนอ 2 จอ</button><button class="btn go" data-act="present">นำเสนอ</button>');
   var h = '<div class="prep"><div>';
   h += '<section class="panel"><h2>การประชุม</h2>' + fld('meeting.title', 'ชื่อการประชุม / หัวข้อรายงาน') + '<div class="g3">' + fld('meeting.no', 'ครั้งที่') + fld('meeting.meetDate', 'วันที่ประชุม', 'date') + fld('meeting.date', 'ข้อมูล ณ วันที่', 'date', '', 'ใช้คำนวณแผนและผลงาน') + '</div>' +
     '<div class="g3">' + fld('meeting.presenter', 'ผู้นำเสนอ') + fld('meeting.position', 'ตำแหน่ง') + fld('meeting.org', 'หน่วยงาน') + '</div>' +
@@ -723,6 +1042,17 @@ async function vPrep(pid) {
   h += '<section class="panel"><h2>รูปแบบการนำเสนอ</h2><div class="row"><div class="seg" role="group" aria-label="รูปแบบ"><button data-mode="short" class="' + (pr.mode === 'short' ? 'on' : '') + '">แบบสั้น (ผู้บริหาร)</button><button data-mode="full" class="' + (pr.mode === 'full' ? 'on' : '') + '">แบบเต็ม (คณะกรรมการ)</button></div>' +
     '<span class="muted">รอบรายงาน</span><div class="seg" role="group" aria-label="รอบรายงาน">' + [7, 14, 30].map(function (d) { return '<button data-period="' + d + '" class="' + (num(pr.period) === d ? 'on' : '') + '">' + d + ' วัน</button>'; }).join('') + '</div></div>' +
     '<p class="muted">แบบสั้นมี 5 หัวข้อ: หน้าปก สถานะ S-Curve ปัญหาอุปสรรค เรื่องเสนอพิจารณา • เปิด-ปิดสไลด์แต่ละหน้าได้ที่รายการด้านข้าง</p></section>';
+  var C0 = calc(P, pr);
+  h += '<section class="panel"><h2>สรุปสำหรับผู้บริหาร</h2><p class="muted">ระบบเขียนสรุปให้อัตโนมัติจากข้อมูล ถ้าต้องการเขียนเอง พิมพ์บรรทัดละ 1 ประเด็น (เว้นว่างไว้ = ใช้ข้อความอัตโนมัติ)</p>' +
+    '<textarea class="i" rows="5" data-k="summaryText" placeholder="' + esc(C0.ok ? summaryLines(C0, Object.assign({}, pr, { summaryText: '' })).map(function (l) { return l.text; }).join('\n') : '') + '">' + esc(pr.summaryText || '') + '</textarea></section>';
+  h += '<section class="panel"><h2>สไลด์เพิ่มเติม</h2><p class="muted">เช่น งานเปลี่ยนแปลง (VO) ผลทดสอบวัสดุ ความปลอดภัย แสดงก่อนหน้าเรื่องเสนอพิจารณา • ขึ้นต้นบรรทัดด้วย - เพื่อทำเป็นหัวข้อย่อย</p>' +
+    (pr.custom || []).map(function (c, i) {
+      return '<div class="lrow"><button class="btn sm bad x" data-rm="custom" data-i="' + i + '">ลบ</button>' +
+        '<div class="fld"><label for="cu' + i + 't">หัวข้อ</label><input class="i" id="cu' + i + 't" data-l="custom" data-i="' + i + '" data-f="title" value="' + esc(c.title) + '"></div>' +
+        '<div class="fld"><label for="cu' + i + 's">คำอธิบายใต้หัวข้อ (ไม่บังคับ)</label><input class="i" id="cu' + i + 's" data-l="custom" data-i="' + i + '" data-f="sub" value="' + esc(c.sub) + '"></div>' +
+        '<div class="fld"><label for="cu' + i + 'b">เนื้อหา</label><textarea class="i" rows="4" id="cu' + i + 'b" data-l="custom" data-i="' + i + '" data-f="body">' + esc(c.body) + '</textarea></div>' +
+        '<div class="row">' + (c.img ? '<img class="cimg" src="' + c.img + '" alt=""><button class="btn sm bad" data-cimgdel="' + i + '">นำรูปออก</button>' : '') + '<label class="btn sm sec">' + (c.img ? 'เปลี่ยนรูป' : 'ใส่รูปประกอบ') + '<input type="file" class="hidden" accept="image/*" data-cimg="' + i + '"></label></div></div>';
+    }).join('') + '<button class="btn sm sec" data-add="custom">เพิ่มสไลด์</button></section>';
   h += '<section class="panel"><h2>ปัญหาอุปสรรคและแนวทางแก้ไข</h2>' + listRows('issues', ISS_F) + '<button class="btn sm sec" data-add="issues">เพิ่มปัญหาอุปสรรค</button></section>';
   h += '<section class="panel"><h2>เรื่องเสนอเพื่อพิจารณา</h2>' + listRows('requests', REQ_F) + '<button class="btn sm sec" data-add="requests">เพิ่มเรื่องเสนอ</button><p class="muted">เช่น ขอขยายระยะเวลา ขออนุมัติเปลี่ยนแปลงงาน ขอนัดตรวจรับงานงวด</p></section>';
   h += '<section class="panel"><h2>ภาพถ่ายหน้างาน</h2><label class="btn sm sec">เพิ่มรูปถ่าย<input type="file" id="photoFile" class="hidden" accept="image/*" multiple></label><span class="muted"> สไลด์ละ 4 รูป ระบบย่อขนาดรูปให้อัตโนมัติ</span>' +
@@ -739,18 +1069,21 @@ async function vPrep(pid) {
   $('#main').innerHTML = h;
   refresh();
 }
+S.openNotes = {};
 function refresh() {
   S.C = calc(S.P, S.pr);
   var box = $('#slist'); if (!box) return;
-  var all = buildSlides(S.C, S.pr, S.photos, false), warn = '';
+  var all = buildSlides(S.C, S.pr, S.photos, false), warn = '', onList = buildSlides(S.C, S.pr, S.photos, true), seen = {}, idx = 0;
   if (!S.C.ok) warn = '<div class="note bad">ไม่พบรายการงานที่มีวันเริ่ม-เสร็จตามแผน – ตรวจข้อมูลใน site-control หรือไฟล์ Excel</div>';
-  var seen = {}, idx = 0, onList = buildSlides(S.C, S.pr, S.photos, true);
-  box.innerHTML = '<h2>สไลด์ (' + onList.length + ' หน้า)</h2>' + warn + all.map(function (s) {
-    var first = !seen[s.key]; seen[s.key] = 1; var on = slideOn(S.pr, s.key), lab = SL.filter(function (x) { return x[0] === s.key; })[0][1];
-    return '<div class="sitem' + (on ? '' : ' off') + '">' + (first ? '<input type="checkbox" data-sl="' + s.key + '" ' + (on ? 'checked' : '') + ' aria-label="แสดง ' + lab + '">' : '<span></span>') +
-      '<div><div class="lab">' + (first ? lab : '<span class="muted">' + lab + ' (ต่อ)</span>') + '</div><div class="thumb" data-start="' + (on ? idx++ : -1) + '" title="' + (on ? 'เริ่มนำเสนอจากหน้านี้' : 'ปิดอยู่') + '">' + s.html + '</div></div></div>';
+  box.innerHTML = '<h2>สไลด์ (' + onList.length + ' หน้า ประมาณ ' + Math.max(1, Math.round(onList.length * 1.5)) + ' นาที)</h2>' + warn + all.map(function (s) {
+    var first = !seen[s.key]; seen[s.key] = 1; var on = slideOn(S.pr, s.key), lab = labelOf(S.pr, s.key), ov = S.pr.notes && S.pr.notes[s.key];
+    return '<div class="sitem' + (on ? '' : ' off') + '">' + (first ? '<input type="checkbox" data-sl="' + esc(s.key) + '" ' + (on ? 'checked' : '') + ' aria-label="แสดง ' + esc(lab) + '">' : '<span></span>') +
+      '<div><div class="lab">' + (first ? esc(lab) : '<span class="muted">' + esc(lab) + ' (ต่อ)</span>') + '</div><div class="thumb" data-start="' + (on ? idx++ : -1) + '" title="' + (on ? 'เริ่มนำเสนอจากหน้านี้' : 'ปิดอยู่') + '">' + s.html + '</div>' +
+      (first ? '<details class="nt" data-ntk="' + esc(s.key) + '"' + (S.openNotes[s.key] ? ' open' : '') + '><summary>บทพูด' + (ov ? ' (แก้ไขเอง)' : '') + '</summary><textarea class="i" rows="5" data-note="' + esc(s.key) + '">' + esc(s.notes || '') + '</textarea>' +
+        (ov ? '<button class="btn sm sec" data-ntreset="' + esc(s.key) + '">ใช้ข้อความอัตโนมัติ</button>' : '') + '</details>' : '') + '</div></div>';
   }).join('') + (!S.photos.length ? '<p class="muted">สไลด์ภาพถ่ายจะปรากฏเมื่อเพิ่มรูป</p>' : '') + (!S.C.inst || !S.C.inst.length ? '<p class="muted">สไลด์งวดงานจะปรากฏเมื่อมีข้อมูลงวดงาน</p>' : '') +
     (!(S.pr.requests || []).some(function (x) { return x.text; }) ? '<p class="muted">สไลด์เรื่องเสนอพิจารณาจะปรากฏเมื่อเพิ่มเรื่อง</p>' : '');
+  $$('details.nt', box).forEach(function (d) { d.addEventListener('toggle', function () { S.openNotes[d.dataset.ntk] = d.open; }); });
 }
 var _saveT = null;
 function savePr(redraw) {
@@ -826,37 +1159,123 @@ async function snapshot() {
   list.push({ date: d, actual: +C.actual.toFixed(6), plan: +C.plan.toFixed(6) }); list.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
   S.pr.snaps = list.slice(-60); await DB.put('pres', S.pr);
 }
-function present(startAt) {
+/* ===================== presenter: single screen or console + audience window ===================== */
+function drawInk(cv, strokes, las) {
+  if (!cv) return; var g = cv.getContext('2d'); g.clearRect(0, 0, 1600, 900); g.lineCap = 'round'; g.lineJoin = 'round';
+  (strokes || []).forEach(function (s) { g.strokeStyle = s.c; g.lineWidth = s.w; g.beginPath(); s.p.forEach(function (p, j) { if (j) g.lineTo(p[0], p[1]); else g.moveTo(p[0], p[1]); }); if (s.p.length === 1) g.lineTo(s.p[0][0] + 0.1, s.p[0][1]); g.stroke(); });
+  if (las) { g.fillStyle = 'rgba(230,40,40,.25)'; g.beginPath(); g.arc(las[0], las[1], 30, 0, 7); g.fill(); g.fillStyle = 'rgba(230,30,30,.95)'; g.beginPath(); g.arc(las[0], las[1], 12, 0, 7); g.fill(); }
+}
+function fitStage(stage, W, H) { var s = Math.min(W / 1600, H / 900); stage.style.transform = 'translate(' + ((W - 1600 * s) / 2) + 'px,' + ((H - 900 * s) / 2) + 'px) scale(' + s + ')'; }
+var STAGE = '<div class="pv-stage"><div class="pv-slide"></div><canvas class="ink" width="1600" height="900"></canvas></div>';
+function fmtT(ms) { var s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60; return (h ? h + ':' : '') + (m < 10 ? '0' : '') + m + ':' + (x < 10 ? '0' : '') + x; }
+function present(startAt, dual) {
   snapshot();
-  var slides = buildSlides(S.C, S.pr, S.photos, true), i = Math.max(0, Math.min(slides.length - 1, startAt || 0));
-  var ov = document.createElement('div'); ov.className = 'pv'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'โหมดนำเสนอ');
-  ov.innerHTML = '<div class="pv-stage" aria-live="polite"></div><div class="pv-bar"><button data-pv="prev" aria-label="ก่อนหน้า">‹</button><span id="pvN"></span><button data-pv="next" aria-label="ถัดไป">›</button><button data-pv="fs">เต็มจอ</button><button data-pv="x">ออก</button></div>';
+  var slides = buildSlides(S.C, S.pr, S.photos, true), n = slides.length, i = Math.max(0, Math.min(n - 1, startAt || 0));
+  var tool = '', ink = {}, black = false, laser = null, cur = null, aud = null, t0 = Date.now(), pausedAt = null, idleT, tick;
+  if (dual) {
+    aud = window.open('', 'spr_audience', 'width=1280,height=760');
+    if (!aud) { toast('เบราว์เซอร์บล็อกหน้าต่างใหม่ – อนุญาต pop-up สำหรับแอปนี้ แล้วกดนำเสนอ 2 จออีกครั้ง', true, 6000); dual = false; }
+  }
+  var bar = '<div class="pv-bar" role="toolbar" aria-label="ควบคุมการนำเสนอ"><button data-pv="prev" aria-label="ก่อนหน้า">‹</button><span class="pvN"></span><button data-pv="next" aria-label="ถัดไป">›</button>' +
+    '<button data-pv="pen" title="ปากกา (P)">ปากกา</button><button data-pv="laser" title="เลเซอร์ (L)">เลเซอร์</button><button data-pv="clear" title="ลบหมึก (E)">ลบ</button><button data-pv="black" title="จอดำ (B)">จอดำ</button>' +
+    (dual ? '' : '<button data-pv="notes" title="บทพูด (N)">บทพูด</button><button data-pv="fs">เต็มจอ</button>') + '<button data-pv="x">ออก</button></div>';
+  var ov = document.createElement('div'); ov.className = 'pv' + (dual ? ' con' : ''); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', dual ? 'หน้าจอผู้นำเสนอ' : 'โหมดนำเสนอ');
+  ov.innerHTML = dual ? '<div class="cs"><div class="cs-main"><div class="cs-box" id="csCur">' + STAGE + '</div></div><div class="cs-side"><div class="cs-time"><b id="csT">00:00</b><span id="csClock"></span><button data-pv="tp">หยุดเวลา</button><button data-pv="tr">เริ่มใหม่</button></div>' +
+    '<div class="cs-lab">ถัดไป</div><div class="cs-box sm" id="csNext">' + STAGE + '</div><div class="cs-lab">บทพูด</div><div class="cs-notes" id="csNotes"></div><button class="btn sm sec" data-pv="reaud">เปิดจอผู้ชมอีกครั้ง</button></div>' + bar + '</div>'
+    : STAGE + '<div class="pv-black hidden"></div><div class="pv-notes hidden"></div>' + bar;
   document.body.appendChild(ov);
-  var stage = $('.pv-stage', ov), idleT;
-  var fit = function () { var s = Math.min(ov.clientWidth / 1600, ov.clientHeight / 900); stage.style.transform = 'translate(' + ((ov.clientWidth - 1600 * s) / 2) + 'px,' + ((ov.clientHeight - 900 * s) / 2) + 'px) scale(' + s + ')'; };
-  var show = function (n) { i = Math.max(0, Math.min(slides.length - 1, n)); stage.innerHTML = slides[i].html; $('#pvN', ov).textContent = (i + 1) + ' / ' + slides.length; };
-  var wake = function () { ov.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(function () { ov.classList.add('idle'); }, 2500); };
-  var key = function (e) {
-    if (['ArrowRight', 'PageDown', ' ', 'Enter', 'ArrowDown'].indexOf(e.key) >= 0) { e.preventDefault(); show(i + 1); }
-    else if (['ArrowLeft', 'PageUp', 'Backspace', 'ArrowUp'].indexOf(e.key) >= 0) { e.preventDefault(); show(i - 1); }
-    else if (e.key === 'Home') show(0); else if (e.key === 'End') show(slides.length - 1);
-    else if (e.key === 'Escape') close();
-  };
-  var close = function () { document.removeEventListener('keydown', key); window.removeEventListener('resize', fit); clearTimeout(idleT); if (document.fullscreenElement) document.exitFullscreen().catch(function () {}); ov.remove(); };
+  var stageCur = $('.pv-stage', dual ? $('#csCur', ov) : ov), cvCur = $('canvas', stageCur), audStage = null, audCv = null;
+  function setupAud() {
+    if (!aud || aud.closed) return;
+    var d = aud.document; d.open();
+    d.write('<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>จอผู้ชม – ' + esc(S.C.P.name) + '</title>' + document.querySelector('style').outerHTML +
+      '<style>:root{padding:0}html,body{margin:0;height:100%;background:#000;overflow:hidden}.aud{position:fixed;inset:0;background:#000}.fsb{position:fixed;right:14px;top:14px;z-index:5}.aud.blk .pv-stage{visibility:hidden}</style></head><body><div class="aud">' + STAGE +
+      '</div><button class="btn go fsb">ลากหน้าต่างนี้ไปจอโปรเจกเตอร์ แล้วกดเพื่อแสดงเต็มจอ</button></body></html>'); d.close();
+    audStage = d.querySelector('.pv-stage'); audCv = d.querySelector('canvas');
+    var fsb = d.querySelector('.fsb'); fsb.addEventListener('click', function () { if (d.documentElement.requestFullscreen) d.documentElement.requestFullscreen().catch(function () {}); });
+    d.addEventListener('fullscreenchange', function () { fsb.style.display = d.fullscreenElement ? 'none' : ''; fitAll(); });
+    aud.addEventListener('resize', fitAll); d.addEventListener('keydown', key);
+    show(i);
+  }
+  function fitAll() {
+    if (dual) { var b = $('#csCur', ov), nb = $('#csNext', ov); fitStage(stageCur, b.clientWidth, b.clientHeight); fitStage($('.pv-stage', nb), nb.clientWidth, nb.clientHeight); }
+    else fitStage(stageCur, ov.clientWidth, ov.clientHeight);
+    if (audStage && aud && !aud.closed) fitStage(audStage, aud.innerWidth, aud.innerHeight);
+  }
+  function redraw() { drawInk(cvCur, ink[i], laser); if (audCv) drawInk(audCv, ink[i], laser); }
+  function show(k) {
+    i = Math.max(0, Math.min(n - 1, k)); laser = null;
+    $('.pv-slide', stageCur).innerHTML = slides[i].html; $$('.pvN', ov).forEach(function (e) { e.textContent = (i + 1) + ' / ' + n; });
+    if (audStage) audStage.querySelector('.pv-slide').innerHTML = slides[i].html;
+    if (dual) { $('#csNext .pv-slide', ov).innerHTML = i + 1 < n ? slides[i + 1].html : '<section class="slide endsl"><p>จบการนำเสนอ</p></section>'; $('#csNotes', ov).textContent = slides[i].notes || '(ไม่มีบทพูด)'; }
+    else $('.pv-notes', ov).textContent = slides[i].notes || '(ไม่มีบทพูด)';
+    redraw();
+  }
+  function setTool(t) { tool = tool === t ? '' : t; laser = null; cvCur.style.pointerEvents = tool ? 'auto' : 'none'; cvCur.style.cursor = tool === 'pen' ? 'crosshair' : tool === 'laser' ? 'none' : ''; $$('[data-pv=pen],[data-pv=laser]', ov).forEach(function (b) { b.classList.toggle('on', b.dataset.pv === tool); }); redraw(); }
+  function setBlack(v) { black = v; if (dual) { if (aud && !aud.closed) aud.document.querySelector('.aud').classList.toggle('blk', black); } else $('.pv-black', ov).classList.toggle('hidden', !black); $$('[data-pv=black]', ov).forEach(function (b) { b.classList.toggle('on', black); }); }
+  function pt(e) { var r = cvCur.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 1600, (e.clientY - r.top) / r.height * 900]; }
+  cvCur.addEventListener('pointerdown', function (e) { if (tool !== 'pen') return; e.preventDefault(); cvCur.setPointerCapture(e.pointerId); cur = { c: '#E0262B', w: 6, p: [pt(e)] }; (ink[i] = ink[i] || []).push(cur); redraw(); });
+  cvCur.addEventListener('pointermove', function (e) { if (tool === 'pen' && cur) { cur.p.push(pt(e)); redraw(); } else if (tool === 'laser') { laser = pt(e); redraw(); } });
+  cvCur.addEventListener('pointerup', function () { cur = null; });
+  cvCur.addEventListener('pointerleave', function () { if (tool === 'laser') { laser = null; redraw(); } });
+  function key(e) {
+    var k = e.key;
+    if (['ArrowRight', 'PageDown', ' ', 'Enter', 'ArrowDown'].indexOf(k) >= 0) { e.preventDefault(); show(i + 1); }
+    else if (['ArrowLeft', 'PageUp', 'Backspace', 'ArrowUp'].indexOf(k) >= 0) { e.preventDefault(); show(i - 1); }
+    else if (k === 'Home') show(0); else if (k === 'End') show(n - 1);
+    else if (k === 'p' || k === 'P') setTool('pen'); else if (k === 'l' || k === 'L') setTool('laser');
+    else if (k === 'e' || k === 'E') { ink[i] = []; redraw(); } else if (k === 'b' || k === 'B' || k === '.') setBlack(!black);
+    else if ((k === 'n' || k === 'N') && !dual) $('.pv-notes', ov).classList.toggle('hidden');
+    else if (k === 'Escape') { if (tool) setTool(tool); else close(); }
+  }
+  function close() {
+    document.removeEventListener('keydown', key); window.removeEventListener('resize', fitAll); clearInterval(tick); clearTimeout(idleT);
+    if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
+    if (aud && !aud.closed) aud.close(); ov.remove();
+  }
+  function wake() { if (dual) return; ov.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(function () { ov.classList.add('idle'); }, 2500); }
   var tx0 = null;
-  ov.addEventListener('touchstart', function (e) { tx0 = e.touches[0].clientX; }, { passive: true });
+  ov.addEventListener('touchstart', function (e) { if (!tool) tx0 = e.touches[0].clientX; }, { passive: true });
   ov.addEventListener('touchend', function (e) { if (tx0 == null) return; var dx = e.changedTouches[0].clientX - tx0; tx0 = null; if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1)); }, { passive: true });
   ov.addEventListener('mousemove', wake);
   ov.addEventListener('click', function (e) {
     var b = e.target.closest('[data-pv]'); wake();
-    if (b) { var a = b.dataset.pv; if (a === 'prev') show(i - 1); else if (a === 'next') show(i + 1); else if (a === 'x') close(); else if (a === 'fs') { if (document.fullscreenElement) document.exitFullscreen(); else if (ov.requestFullscreen) ov.requestFullscreen().catch(function () {}); } return; }
-    if (e.target.closest('.pv-bar')) return;
+    if (b) { var a = b.dataset.pv;
+      if (a === 'prev') show(i - 1); else if (a === 'next') show(i + 1); else if (a === 'x') close(); else if (a === 'pen' || a === 'laser') setTool(a);
+      else if (a === 'clear') { ink[i] = []; redraw(); } else if (a === 'black') setBlack(!black); else if (a === 'notes') $('.pv-notes', ov).classList.toggle('hidden');
+      else if (a === 'fs') { if (document.fullscreenElement) document.exitFullscreen(); else if (ov.requestFullscreen) ov.requestFullscreen().catch(function () {}); }
+      else if (a === 'tp') { if (pausedAt) { t0 += Date.now() - pausedAt; pausedAt = null; b.textContent = 'หยุดเวลา'; } else { pausedAt = Date.now(); b.textContent = 'เดินเวลาต่อ'; } }
+      else if (a === 'tr') { t0 = Date.now(); if (pausedAt) pausedAt = Date.now(); }
+      else if (a === 'reaud') { aud = window.open('', 'spr_audience', 'width=1280,height=760'); if (aud) { setupAud(); fitAll(); } else toast('เบราว์เซอร์บล็อกหน้าต่างใหม่', true); }
+      return; }
+    if (tool || e.target.closest('.pv-bar,.cs-side,.pv-notes')) return;
+    if (dual) { if (e.target.closest('#csCur')) show(i + 1); return; }
     show(i + (e.clientX > ov.clientWidth * 0.3 ? 1 : -1));
   });
-  document.addEventListener('keydown', key); window.addEventListener('resize', fit); document.addEventListener('fullscreenchange', fit);
-  if (ov.requestFullscreen) ov.requestFullscreen().catch(function () {});
-  fit(); show(i); wake();
+  document.addEventListener('keydown', key); window.addEventListener('resize', fitAll); document.addEventListener('fullscreenchange', fitAll);
+  if (dual) {
+    setupAud();
+    tick = setInterval(function () { var t = $('#csT', ov); if (!t) return; t.textContent = fmtT((pausedAt || Date.now()) - t0); var d = new Date(); $('#csClock', ov).textContent = d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes() + ' น.'; }, 500);
+  } else if (ov.requestFullscreen) ov.requestFullscreen().catch(function () {});
+  setTool(''); fitAll(); show(i); wake();
+  setTimeout(fitAll, 120);
 }
+
+/* ===================== backup / restore ===================== */
+async function doBackup() {
+  var out = { app: 'sitepresent', version: APP_VERSION, exported: new Date().toISOString(), projects: await DB.all('projects'), pres: await DB.all('pres'), photos: await DB.all('photos') };
+  var blob = new Blob([JSON.stringify(out)], { type: 'application/json' }), u = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = u; a.download = 'สำรอง_นำเสนอผลงาน_' + iso(today()) + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+  toast('สำรองข้อมูลแล้ว');
+}
+async function doRestore(file) {
+  var d; try { d = JSON.parse(await file.text()); } catch (e) { throw new Error('ไฟล์นี้ไม่ใช่ไฟล์สำรองของแอปนำเสนอผลงาน'); }
+  if (!d || d.app !== 'sitepresent') throw new Error('ไฟล์นี้ไม่ใช่ไฟล์สำรองของแอปนำเสนอผลงาน');
+  if (!confirm('กู้คืน ' + (d.pres || []).length + ' ชุดนำเสนอ และ ' + (d.photos || []).length + ' รูป จากไฟล์วันที่ ' + th((d.exported || '').slice(0, 10)) + '? (รายการที่ซ้ำจะใช้ข้อมูลจากไฟล์)')) return;
+  for (var k of ['projects', 'pres', 'photos']) for (var o of (d[k] || [])) await DB.put(k, o);
+  toast('กู้คืนแล้ว'); render();
+}
+
 function printAll() {
   snapshot();
   var slides = buildSlides(S.C, S.pr, S.photos, true);
@@ -868,7 +1287,7 @@ function printAll() {
 
 /* ---- events ---- */
 document.addEventListener('click', async function (e) {
-  var el = e.target.closest('[data-go],[data-act],[data-delp],[data-add],[data-rm],[data-mode],[data-period],[data-delph],.thumb'); if (!el) return;
+  var el = e.target.closest('[data-go],[data-act],[data-delp],[data-add],[data-rm],[data-mode],[data-period],[data-delph],[data-ntreset],[data-cimgdel],.thumb'); if (!el) return;
   try {
     if (el.dataset.delp) {
       e.stopPropagation(); if (!confirm('ลบโครงการนี้ออกจากแอปนำเสนอ? (ไม่กระทบ site-control)')) return;
@@ -876,12 +1295,14 @@ document.addEventListener('click', async function (e) {
       (await DB.byProject('photos', id)).forEach(function (p) { DB.del('photos', p.id); }); toast('ลบแล้ว'); go('/'); return;
     }
     if (el.dataset.go != null) return go(el.dataset.go);
+    if (el.dataset.ntreset) { delete S.pr.notes[el.dataset.ntreset]; await DB.put('pres', S.pr); refresh(); return; }
+    if (el.dataset.cimgdel != null) { S.pr.custom[+el.dataset.cimgdel].img = ''; await DB.put('pres', S.pr); rerender(); return; }
     if (el.classList.contains('thumb')) { var n = +el.dataset.start; if (n >= 0) present(n); return; }
     if (el.dataset.mode) { S.pr.mode = el.dataset.mode; S.pr.slides = {}; await DB.put('pres', S.pr); return rerender(); }
     if (el.dataset.period) { S.pr.period = +el.dataset.period; await DB.put('pres', S.pr); return rerender(); }
     if (el.dataset.add) {
       var k = el.dataset.add; S.pr[k] = S.pr[k] || [];
-      S.pr[k].push(k === 'issues' ? { problem: '', impact: '', fix: '', owner: '' } : k === 'requests' ? { text: '', detail: '' } : { label: 'งวดที่ ' + (S.pr[k].length + 1), amount: '', due: '', submitted: '', accepted: '', paid: '' });
+      S.pr[k].push(k === 'issues' ? { problem: '', impact: '', fix: '', owner: '' } : k === 'requests' ? { text: '', detail: '' } : k === 'custom' ? { id: uid(), title: '', sub: '', body: '', img: '' } : { label: 'งวดที่ ' + (S.pr[k].length + 1), amount: '', due: '', submitted: '', accepted: '', paid: '' });
       await DB.put('pres', S.pr); rerender(); return;
     }
     if (el.dataset.rm) { S.pr[el.dataset.rm].splice(+el.dataset.i, 1); await DB.put('pres', S.pr); rerender(); return; }
@@ -889,6 +1310,9 @@ document.addEventListener('click', async function (e) {
     var a = el.dataset.act;
     if (a === 'demo') { var did = await createDemo(); go('/p/' + did); }
     else if (a === 'present') present(0);
+    else if (a === 'present2') present(0, true);
+    else if (a === 'pptx') await exportPptx();
+    else if (a === 'backup') await doBackup();
     else if (a === 'print') printAll();
     else if (a === 'logoDel') { S.pr.logo = ''; await DB.put('pres', S.pr); rerender(); }
     else if (a === 'instEdit') { S.pr.inst = (S.P.inst || []).map(function (x) { return Object.assign({}, x); }); await DB.put('pres', S.pr); rerender(); }
@@ -900,6 +1324,7 @@ document.addEventListener('input', function (e) {
   var t = e.target; if (!S.pr) return;
   if (t.dataset.k) { setPath(S.pr, t.dataset.k, t.type === 'number' ? (t.value === '' ? '' : num(t.value)) : t.value); if (t.dataset.k === 'meeting.title' || t.dataset.k.indexOf('meeting') === 0) {} savePr(); }
   else if (t.dataset.l) { S.pr[t.dataset.l][+t.dataset.i][t.dataset.f] = t.value; savePr(); }
+  else if (t.dataset.note) { S.pr.notes = S.pr.notes || {}; S.pr.notes[t.dataset.note] = t.value; savePr(false); }
   else if (t.dataset.c) { S.pr.contract = S.pr.contract || {}; S.pr.contract[t.dataset.c] = t.value.replace(/,/g, ''); if (t.dataset.c === 'name') $('#tTitle').textContent = project(S.P, S.pr).name; savePr(); }
   else if (t.dataset.ph) { var p = S.photos.filter(function (x) { return x.id === t.dataset.ph; })[0]; if (p) { p.caption = t.value; clearTimeout(p._t); p._t = setTimeout(function () { var o = Object.assign({}, p); delete o._t; DB.put('photos', o); refresh(); }, 400); } }
 });
@@ -909,6 +1334,8 @@ document.addEventListener('change', async function (e) {
     if (t.dataset.sl) { S.pr.slides = S.pr.slides || {}; S.pr.slides[t.dataset.sl] = t.checked; await DB.put('pres', S.pr); refresh(); return; }
     if (t.id === 'xlsxFile' && t.files[0]) { var P = await importXlsx(t.files[0]); go('/p/' + P.id); }
     else if (t.id === 'xlsxUpd' && t.files[0]) { await importXlsx(t.files[0], S.P.id); rerender(); }
+    else if (t.dataset.cimg != null && t.files[0]) { S.pr.custom[+t.dataset.cimg].img = await readImage(t.files[0], 1400, 0.85); await DB.put('pres', S.pr); rerender(); }
+    else if (t.id === 'restoreFile' && t.files[0]) await doRestore(t.files[0]);
     else if (t.id === 'logoFile' && t.files[0]) { S.pr.logo = await readImage(t.files[0], 480, 0); await DB.put('pres', S.pr); rerender(); }
     else if (t.id === 'photoFile' && t.files.length) {
       toast('กำลังเพิ่มรูป…'); var base = S.photos.length;
